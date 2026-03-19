@@ -6,9 +6,9 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="layout">
       <Sidebar />
-      <main className="pt-14 lg:pt-0 lg:ml-64 p-4 lg:p-8 overflow-auto min-h-screen">
+      <main className="main-content">
         {children}
       </main>
     </div>
