@@ -3,6 +3,7 @@ import authReducer from './slices/authSlice.ts';
 import productsReducer from './slices/productsSlice.ts';
 import ordersReducer from './slices/ordersSlice.ts';
 import uiReducer from './slices/uiSlice.ts';
+import uploadReducer from './slices/uploadSlice.ts';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     products: productsReducer,
     orders: ordersReducer,
     ui: uiReducer,
+    upload: uploadReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
