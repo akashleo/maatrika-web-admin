@@ -42,6 +42,7 @@ export const generateUploadUrl = createAsyncThunk(
     try {
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
+        'authorization': `Bearer ${localStorage.getItem('token')}`,
       };
 
       if (fileSize) {

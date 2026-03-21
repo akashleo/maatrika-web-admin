@@ -1,10 +1,13 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+import bcrypt from 'bcryptjs';
 
 interface User {
   id: string;
+  username: string;
   email: string;
-  name: string;
-  role: 'admin' | 'superadmin';
+  first_name: string;
+  last_name: string;
+  role: 'ADMIN' | 'USER';
 }
 
 interface AuthState {
@@ -18,26 +21,31 @@ interface AuthState {
 const initialState: AuthState = {
   user: null,
   token: localStorage.getItem('token'),
-  isAuthenticated: false,
+  isAuthenticated: !!localStorage.getItem('token'),
   loading: false,
   error: null,
 };
 
-export const login = createAsyncThunk(
-  'auth/login',
-  async (credentials: { email: string; password: string }, { rejectWithValue }) => {
+export const adminLogin = createAsyncThunk(
+  'auth/adminLogin',
+  async (credentials: { username: string; password: string }, { rejectWithValue }) => {
     try {
-      // Replace with actual API call
-      const response = await fetch('/api/auth/login', {
+      const hashedPassword = await bcrypt.hash(credentials.password, 10);
+
+      const response = await fetch(`${import.meta.env.MAATRIKA_BACKEND || 'http://localhost:5000'}/api/users/admin-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials),
+        body: JSON.stringify({
+          username: credentials.username,
+          password_hash: hashedPassword,
+        }),
       });
-      
+
       if (!response.ok) {
-        throw new Error('Login failed');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Login failed');
       }
-      
+
       const data = await response.json();
       localStorage.setItem('token', data.token);
       return data;
@@ -73,17 +81,17 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(login.pending, (state) => {
+      .addCase(adminLogin.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(login.fulfilled, (state, action) => {
+      .addCase(adminLogin.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
         state.token = action.payload.token;
         state.isAuthenticated = true;
       })
-      .addCase(login.rejected, (state, action) => {
+      .addCase(adminLogin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
