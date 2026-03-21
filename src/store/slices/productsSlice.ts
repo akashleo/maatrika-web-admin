@@ -1,11 +1,12 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+import api from '../../api/axios';
 
 export interface Product {
   id: string;
   name: string;
   description: string;
   price: number;
-  stock: number;
+  quantities: string[];
   category: string;
   imageUrl?: string;
   status: 'active' | 'inactive' | 'draft';
@@ -51,11 +52,10 @@ export const fetchProducts = createAsyncThunk(
   'products/fetchProducts',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch('/api/products');
-      if (!response.ok) throw new Error('Failed to fetch products');
-      return await response.json();
-    } catch (error) {
-      return rejectWithValue((error as Error).message);
+      const response = await api.get('/api/products');
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -64,15 +64,10 @@ export const createProduct = createAsyncThunk(
   'products/createProduct',
   async (product: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>, { rejectWithValue }) => {
     try {
-      const response = await fetch('/api/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(product),
-      });
-      if (!response.ok) throw new Error('Failed to create product');
-      return await response.json();
-    } catch (error) {
-      return rejectWithValue((error as Error).message);
+      const response = await api.post('/api/products', product);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -81,15 +76,10 @@ export const updateProduct = createAsyncThunk(
   'products/updateProduct',
   async ({ id, product }: { id: string; product: Partial<Product> }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/products/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(product),
-      });
-      if (!response.ok) throw new Error('Failed to update product');
-      return await response.json();
-    } catch (error) {
-      return rejectWithValue((error as Error).message);
+      const response = await api.put(`/api/products/${id}`, product);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -98,11 +88,10 @@ export const deleteProduct = createAsyncThunk(
   'products/deleteProduct',
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/products/${id}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('Failed to delete product');
+      await api.delete(`/api/products/${id}`);
       return id;
-    } catch (error) {
-      return rejectWithValue((error as Error).message);
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );

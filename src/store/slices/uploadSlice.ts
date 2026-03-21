@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
-
-const MAATRIKA_BACKEND = import.meta.env.MAATRIKA_BACKEND || 'http://localhost:5000';
+import api from '../../api/axios';
+import axios from 'axios';
 
 export interface UploadState {
   uploadUrl: string | null;
@@ -27,43 +27,29 @@ interface GenerateUploadUrlParams {
   fileSize?: number;
 }
 
-interface GenerateUploadUrlResponse {
-  success: boolean;
-  data: {
-    uploadUrl: string;
-    publicUrl: string;
-    expiresAt: string;
-  };
-}
-
 export const generateUploadUrl = createAsyncThunk(
   'upload/generateUploadUrl',
   async ({ fileName, contentType, productId, fileSize }: GenerateUploadUrlParams, { rejectWithValue }) => {
     try {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        'authorization': `Bearer ${localStorage.getItem('token')}`,
+      const config: any = {
+        headers: {
+          'Content-Type': 'application/json',
+        }
       };
 
       if (fileSize) {
-        headers['x-file-size'] = fileSize.toString();
+        config.headers['x-file-size'] = fileSize.toString();
       }
 
-      const response = await fetch(`${MAATRIKA_BACKEND}/api/uploads/product-image`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ fileName, contentType, productId }),
-      });
+      const response = await api.post('/api/uploads/product-image', {
+        fileName,
+        contentType,
+        productId
+      }, config);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate upload URL');
-      }
-
-      const data: GenerateUploadUrlResponse = await response.json();
-      return data.data;
-    } catch (error) {
-      return rejectWithValue((error as Error).message);
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.error || error.message);
     }
   }
 );
@@ -72,21 +58,19 @@ export const uploadImageToGCS = createAsyncThunk(
   'upload/uploadImageToGCS',
   async ({ file, uploadUrl }: { file: File; uploadUrl: string }, { rejectWithValue }) => {
     try {
-      const response = await fetch(uploadUrl, {
-        method: 'PUT',
+      const response = await axios.put(uploadUrl, file, {
         headers: {
           'Content-Type': file.type,
         },
-        body: file,
       });
 
-      if (!response.ok) {
+      if (response.status !== 200) {
         throw new Error('Failed to upload image to storage');
       }
 
       return true;
-    } catch (error) {
-      return rejectWithValue((error as Error).message);
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );

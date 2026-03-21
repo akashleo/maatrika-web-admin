@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+import api from '../../api/axios';
 
 export interface OrderItem {
   productId: string;
@@ -77,11 +78,10 @@ export const fetchOrders = createAsyncThunk(
   'orders/fetchOrders',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch('/api/orders');
-      if (!response.ok) throw new Error('Failed to fetch orders');
-      return await response.json();
-    } catch (error) {
-      return rejectWithValue((error as Error).message);
+      const response = await api.get('/api/orders');
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -90,15 +90,10 @@ export const updateOrderStatus = createAsyncThunk(
   'orders/updateOrderStatus',
   async ({ id, status }: { id: string; status: Order['status'] }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/orders/${id}/status`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
-      });
-      if (!response.ok) throw new Error('Failed to update order status');
-      return await response.json();
-    } catch (error) {
-      return rejectWithValue((error as Error).message);
+      const response = await api.put(`/api/orders/${id}/status`, { status });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -107,11 +102,10 @@ export const fetchOrderStats = createAsyncThunk(
   'orders/fetchOrderStats',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch('/api/orders/stats');
-      if (!response.ok) throw new Error('Failed to fetch order stats');
-      return await response.json();
-    } catch (error) {
-      return rejectWithValue((error as Error).message);
+      const response = await api.get('/api/orders/stats');
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );

@@ -4,7 +4,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ArrowLeft, Save, Upload, X, Loader2 } from 'lucide-react';
 import type { Product } from '../types';
 import type { AppDispatch, RootState } from '../store';
+import { fetchProducts, createProduct, updateProduct } from '../store/slices/productsSlice';
 import { generateUploadUrl, uploadImageToGCS, resetUpload } from '../store/slices/uploadSlice';
+
+const quantityOptions = ['100gm', '200gm', '250gm', '500gm'];
 
 const ProductForm = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,8 +24,7 @@ const ProductForm = () => {
     name: '',
     description: '',
     price: 0,
-    category: '',
-    stock: 0,
+    quantities: [],
     imageUrl: '',
   });
 
@@ -33,8 +35,18 @@ const ProductForm = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'price' || name === 'stock' ? parseFloat(value) || 0 : value,
+      [name]: name === 'price' ? parseFloat(value) || 0 : value,
     }));
+  };
+
+  const handleQuantityChange = (quantity: string) => {
+    setFormData((prev) => {
+      const currentQuantities = prev.quantities || [];
+      const updatedQuantities = currentQuantities.includes(quantity)
+        ? currentQuantities.filter((q) => q !== quantity)
+        : [...currentQuantities, quantity];
+      return { ...prev, quantities: updatedQuantities };
+    });
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,17 +119,38 @@ const ProductForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    setIsLoading(false);
-    navigate('/products');
+
+    try {
+      if (isEditMode && id) {
+        await dispatch(updateProduct({ id, product: formData })).unwrap();
+      } else {
+        await dispatch(createProduct(formData as Omit<Product, 'id' | 'createdAt' | 'updatedAt'>)).unwrap();
+      }
+      navigate('/products');
+    } catch (error) {
+      console.error('Failed to save product:', error);
+      alert('Failed to save product. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const categories = ['Electronics', 'Accessories', 'Clothing', 'Home & Garden', 'Sports', 'Books'];
-
   const isTempPreview = formData.imageUrl?.startsWith('blob:');
+
+  // Fetch product data in edit mode
+  useState(() => {
+    if (isEditMode && id) {
+      dispatch(fetchProducts()).then((result) => {
+        if (result.payload?.products) {
+          const product = result.payload.products.find((p: Product) => p.id === id);
+          if (product) {
+            setFormData(product);
+          }
+        }
+      });
+    }
+  });
+
 
   return (
     <div className="page-container">
@@ -182,38 +215,36 @@ const ProductForm = () => {
 
             <div className="form-group">
               <label className="form-label">
-                Stock Quantity *
+                Available Quantities *
               </label>
-              <input
-                type="number"
-                name="stock"
-                required
-                min="0"
-                value={formData.stock}
-                onChange={handleChange}
-                className="form-input"
-                placeholder="0"
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">
-                Category *
-              </label>
-              <select
-                name="category"
-                required
-                value={formData.category}
-                onChange={handleChange}
-                className="form-select"
-              >
-                <option value="">Select a category</option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
+              <div className="flex flex-wrap gap-sm" style={{ marginTop: 'var(--spacing-sm)' }}>
+                {quantityOptions.map((qty) => (
+                  <label
+                    key={qty}
+                    className="flex items-center gap-sm"
+                    style={{
+                      padding: '0.5rem 0.75rem',
+                      border: `1px solid ${(formData.quantities || []).includes(qty) ? 'var(--primary-color)' : 'var(--border-color)'}`,
+                      borderRadius: '0.375rem',
+                      cursor: 'pointer',
+                      backgroundColor: (formData.quantities || []).includes(qty) ? 'var(--primary-light)' : 'transparent',
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={(formData.quantities || []).includes(qty)}
+                      onChange={() => handleQuantityChange(qty)}
+                      style={{ cursor: 'pointer' }}
+                    />
+                    <span>{qty}</span>
+                  </label>
                 ))}
-              </select>
+              </div>
+              {(formData.quantities || []).length === 0 && (
+                <span style={{ color: 'var(--danger-color)', fontSize: '0.875rem', marginTop: '0.25rem', display: 'block' }}>
+                  Please select at least one quantity
+                </span>
+              )}
             </div>
 
             <div className="form-group">
@@ -338,7 +369,11 @@ const ProductForm = () => {
           </div>
 
           <div className="flex gap-md" style={{ marginTop: 'var(--spacing-xl)', paddingTop: 'var(--spacing-lg)', borderTop: '1px solid var(--border-color)' }}>
-            <button type="submit" disabled={isLoading} className="btn btn-primary">
+            <button 
+              type="submit" 
+              disabled={isLoading || (formData.quantities || []).length === 0} 
+              className="btn btn-primary"
+            >
               <Save size={20} />
               {isLoading ? 'Saving...' : isEditMode ? 'Update Product' : 'Create Product'}
             </button>

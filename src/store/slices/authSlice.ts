@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+import api from '../../api/axios';
 import bcrypt from 'bcryptjs';
 
 interface User {
@@ -32,25 +33,16 @@ export const adminLogin = createAsyncThunk(
     try {
       const hashedPassword = await bcrypt.hash(credentials.password, 10);
 
-      const response = await fetch(`${import.meta.env.MAATRIKA_BACKEND || 'http://localhost:5000'}/api/users/admin-login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: credentials.username,
-          password_hash: hashedPassword,
-        }),
+      const response = await api.post('/api/users/admin-login', {
+        username: credentials.username,
+        password_hash: hashedPassword,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
-      }
-
-      const data = await response.json();
+      const data = response.data;
       localStorage.setItem('token', data.token);
       return data;
-    } catch (error) {
-      return rejectWithValue((error as Error).message);
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );

@@ -3,9 +3,10 @@ export interface Product {
   name: string;
   description: string;
   price: number;
+  quantities: string[];
   category: string;
-  stock: number;
   imageUrl?: string;
+  status: 'active' | 'inactive' | 'draft';
   createdAt: string;
   updatedAt: string;
 }
