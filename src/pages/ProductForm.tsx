@@ -24,8 +24,8 @@ const ProductForm = () => {
     name: '',
     description: '',
     price: 0,
-    quantities: [],
-    imageUrl: '',
+    quantity: [],
+    image_url: '',
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -41,7 +41,7 @@ const ProductForm = () => {
 
   const handleQuantityChange = (quantity: string) => {
     setFormData((prev) => {
-      const currentQuantities = prev.quantities || [];
+      const currentQuantities = prev.quantity || [];
       const updatedQuantities = currentQuantities.includes(quantity)
         ? currentQuantities.filter((q) => q !== quantity)
         : [...currentQuantities, quantity];
@@ -135,7 +135,7 @@ const ProductForm = () => {
     }
   };
 
-  const isTempPreview = formData.imageUrl?.startsWith('blob:');
+  const isTempPreview = formData.image_url?.startsWith('blob:');
 
   // Fetch product data in edit mode
   useState(() => {
@@ -224,7 +224,7 @@ const ProductForm = () => {
                     className="flex items-center gap-sm"
                     style={{
                       padding: '0.5rem 0.75rem',
-                      border: `1px solid ${(formData.quantities || []).includes(qty) ? 'var(--primary-color)' : 'var(--border-color)'}`,
+                      border: `1px solid ${(formData.quantity || []).includes(qty) ? 'var(--primary-color)' : 'var(--border-color)'}`,
                       borderRadius: '0.375rem',
                       cursor: 'pointer',
                       backgroundColor: (formData.quantities || []).includes(qty) ? 'var(--primary-light)' : 'transparent',

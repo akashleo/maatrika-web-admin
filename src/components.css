@@ -468,3 +468,142 @@
 .mt-lg {
   margin-top: var(--spacing-lg);
 }
+
+/* Responsive visibility */
+.desktop-only {
+  display: none;
+}
+
+.mobile-only {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .desktop-only {
+    display: block;
+  }
+
+  .mobile-only {
+    display: none;
+  }
+}
+
+/* Product Grid - Mobile Card View */
+.product-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-md);
+}
+
+@media (min-width: 480px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 640px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.product-card {
+  background-color: var(--bg-primary);
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card-image {
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+  background-color: var(--bg-tertiary);
+}
+
+.product-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-card-no-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.product-card-content {
+  padding: var(--spacing-md);
+  flex: 1;
+}
+
+.product-card-title {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.product-card-description {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0 0 var(--spacing-sm) 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+.product-card-details {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-xs);
+}
+
+.product-card-price {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.product-card-stock {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.product-card-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--border-color);
+}
+
+.product-card-actions .btn {
+  flex: 1;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-sm);
+}
+
+/* Spin animation for loader */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
