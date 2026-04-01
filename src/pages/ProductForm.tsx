@@ -165,8 +165,8 @@ const ProductForm = () => {
 
       <form onSubmit={handleSubmit} className="card">
         <div className="card-body">
-          <div className="grid grid-cols-2">
-            <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+            <div className="form-group md:col-span-2">
               <label className="form-label">
                 Product Name *
               </label>
@@ -181,7 +181,7 @@ const ProductForm = () => {
               />
             </div>
 
-            <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+            <div className="form-group md:col-span-2">
               <label className="form-label">
                 Description *
               </label>
@@ -208,7 +208,7 @@ const ProductForm = () => {
                 step="0.01"
                 value={formData.price}
                 onChange={handleChange}
-                className="form-input"
+                className="form-input w-full"
                 placeholder="0.00"
               />
             </div>
@@ -217,16 +217,13 @@ const ProductForm = () => {
               <label className="form-label">
                 Available Quantities *
               </label>
-              <div className="flex flex-wrap gap-sm" style={{ marginTop: 'var(--spacing-sm)' }}>
+              <div className="flex flex-wrap gap-sm mt-2">
                 {quantityOptions.map((qty) => (
                   <label
                     key={qty}
-                    className="flex items-center gap-sm"
+                    className="flex items-center gap-sm px-3 py-2 rounded-md cursor-pointer border transition-colors"
                     style={{
-                      padding: '0.5rem 0.75rem',
-                      border: `1px solid ${(formData.quantity || []).includes(qty) ? 'var(--primary-color)' : 'var(--border-color)'}`,
-                      borderRadius: '0.375rem',
-                      cursor: 'pointer',
+                      borderColor: (formData.quantity || []).includes(qty) ? 'var(--primary-color)' : 'var(--border-color)',
                       backgroundColor: (formData.quantities || []).includes(qty) ? 'var(--primary-light)' : 'transparent',
                     }}
                   >
@@ -234,9 +231,9 @@ const ProductForm = () => {
                       type="checkbox"
                       checked={(formData.quantities || []).includes(qty)}
                       onChange={() => handleQuantityChange(qty)}
-                      style={{ cursor: 'pointer' }}
+                      className="cursor-pointer"
                     />
-                    <span>{qty}</span>
+                    <span className="text-sm">{qty}</span>
                   </label>
                 ))}
               </div>
@@ -247,7 +244,7 @@ const ProductForm = () => {
               )}
             </div>
 
-            <div className="form-group">
+            <div className="form-group md:col-span-2">
               <label className="form-label">
                 Product Image
               </label>
@@ -256,21 +253,12 @@ const ProductForm = () => {
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/gif"
                 onChange={handleFileSelect}
-                style={{ display: 'none' }}
+                className="hidden"
               />
-              <div className="flex items-center gap-md">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-md">
                 <div 
-                  style={{ 
-                    width: '5rem', 
-                    height: '5rem', 
-                    backgroundColor: 'var(--bg-tertiary)', 
-                    borderRadius: '0.5rem', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    position: 'relative',
-                    overflow: 'hidden'
-                  }}
+                  className="w-20 h-20 flex items-center justify-center relative overflow-hidden rounded-lg"
+                  style={{ backgroundColor: 'var(--bg-tertiary)' }}
                 >
                   {formData.imageUrl ? (
                     <>
@@ -307,8 +295,8 @@ const ProductForm = () => {
                     <Upload size={24} style={{ color: 'var(--text-light)' }} />
                   )}
                 </div>
-                <div className="flex flex-col gap-sm">
-                  <div className="flex items-center gap-sm">
+                <div className="flex flex-col gap-sm w-full sm:w-auto">
+                  <div className="flex flex-wrap items-center gap-sm">
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
@@ -327,12 +315,14 @@ const ProductForm = () => {
                         {uploadLoading ? (
                           <>
                             <Loader2 size={16} className="spin" />
-                            Uploading...
+                            <span className="hidden sm:inline">Uploading...</span>
+                            <span className="sm:hidden">...</span>
                           </>
                         ) : (
                           <>
                             <Upload size={16} />
-                            Confirm Upload
+                            <span className="hidden sm:inline">Confirm Upload</span>
+                            <span className="sm:hidden">Upload</span>
                           </>
                         )}
                       </button>
@@ -368,16 +358,16 @@ const ProductForm = () => {
             </div>
           </div>
 
-          <div className="flex gap-md" style={{ marginTop: 'var(--spacing-xl)', paddingTop: 'var(--spacing-lg)', borderTop: '1px solid var(--border-color)' }}>
+          <div className="flex flex-col sm:flex-row gap-md mt-8 pt-6 border-t" style={{ borderColor: 'var(--border-color)' }}>
             <button 
               type="submit" 
               disabled={isLoading || (formData.quantities || []).length === 0} 
-              className="btn btn-primary"
+              className="btn btn-primary w-full sm:w-auto justify-center"
             >
               <Save size={20} />
               {isLoading ? 'Saving...' : isEditMode ? 'Update Product' : 'Create Product'}
             </button>
-            <Link to="/products" className="btn btn-secondary">
+            <Link to="/products" className="btn btn-secondary w-full sm:w-auto justify-center text-center">
               Cancel
             </Link>
           </div>
