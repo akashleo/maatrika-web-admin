@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
 import { TrendingUp, ShoppingBag, Users, DollarSign } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import type { AnalyticsData } from '../types';
 
 const Dashboard = () => {
-  const [analytics, setAnalytics] = useState<AnalyticsData>({
+  const analytics: AnalyticsData = {
     salesByMonth: [
       { month: 'Jan', sales: 4500 },
       { month: 'Feb', sales: 5200 },
@@ -30,12 +29,12 @@ const Dashboard = () => {
     totalOrders: 156,
     totalProducts: 48,
     totalCustomers: 89,
-  });
+  };
 
   const COLORS = ['#3b82f6', '#f59e0b', '#10b981', '#ef4444'];
 
   const stats = [
-    { icon: DollarSign, label: 'Total Revenue', value: `$${analytics.revenue.toLocaleString()}`, trend: '+12%' },
+    { icon: DollarSign, label: 'Total Revenue', value: `₹${analytics.revenue.toLocaleString()}`, trend: '+12%' },
     { icon: ShoppingBag, label: 'Total Orders', value: analytics.totalOrders.toString(), trend: '+8%' },
     { icon: Users, label: 'Customers', value: analytics.totalCustomers.toString(), trend: '+15%' },
     { icon: TrendingUp, label: 'Products', value: analytics.totalProducts.toString(), trend: '+5%' },

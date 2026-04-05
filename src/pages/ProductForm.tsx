@@ -1,8 +1,8 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { ArrowLeft, Save, Upload, X, Loader2 } from 'lucide-react';
-import type { Product } from '../types';
+import type { Product } from '../store/slices/productsSlice';
 import type { AppDispatch, RootState } from '../store';
 import { fetchProducts, createProduct, updateProduct } from '../store/slices/productsSlice';
 import { generateUploadUrl, uploadImageToGCS, resetUpload } from '../store/slices/uploadSlice';
@@ -24,8 +24,10 @@ const ProductForm = () => {
     name: '',
     description: '',
     price: 0,
-    quantity: [],
-    image_url: '',
+    quantities: [],
+    category: '',
+    status: 'draft' as const,
+    imageUrl: '',
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -41,7 +43,7 @@ const ProductForm = () => {
 
   const handleQuantityChange = (quantity: string) => {
     setFormData((prev) => {
-      const currentQuantities = prev.quantity || [];
+      const currentQuantities = prev.quantities || [];
       const updatedQuantities = currentQuantities.includes(quantity)
         ? currentQuantities.filter((q) => q !== quantity)
         : [...currentQuantities, quantity];
@@ -135,10 +137,10 @@ const ProductForm = () => {
     }
   };
 
-  const isTempPreview = formData.image_url?.startsWith('blob:');
+  const isTempPreview = formData.imageUrl?.startsWith('blob:');
 
   // Fetch product data in edit mode
-  useState(() => {
+  useEffect(() => {
     if (isEditMode && id) {
       dispatch(fetchProducts()).then((result) => {
         if (result.payload?.products) {
@@ -149,7 +151,7 @@ const ProductForm = () => {
         }
       });
     }
-  });
+  }, [isEditMode, id, dispatch]);
 
 
   return (
@@ -198,7 +200,7 @@ const ProductForm = () => {
 
             <div className="form-group">
               <label className="form-label">
-                Price ($) *
+                Price (₹) *
               </label>
               <input
                 type="number"
@@ -223,7 +225,7 @@ const ProductForm = () => {
                     key={qty}
                     className="flex items-center gap-sm px-3 py-2 rounded-md cursor-pointer border transition-colors"
                     style={{
-                      borderColor: (formData.quantity || []).includes(qty) ? 'var(--primary-color)' : 'var(--border-color)',
+                      borderColor: (formData.quantities || []).includes(qty) ? 'var(--primary-color)' : 'var(--border-color)',
                       backgroundColor: (formData.quantities || []).includes(qty) ? 'var(--primary-light)' : 'transparent',
                     }}
                   >

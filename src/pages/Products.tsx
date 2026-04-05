@@ -42,7 +42,7 @@ const Products = () => {
   };
 
   const formatPrice = (price: number) => {
-    return `$${price}`;
+    return `₹${price}`;
   };
 
   if (loading) {

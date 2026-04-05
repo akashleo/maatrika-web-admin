@@ -120,7 +120,7 @@ const Orders = () => {
                       <div className="text-secondary text-sm">{order.customerEmail}</div>
                     </td>
                     <td>{order.items.length} items</td>
-                    <td className="font-medium">${order.total.toFixed(2)}</td>
+                    <td className="font-medium">₹{order.total.toFixed(2)}</td>
                     <td>
                       <span className={`badge ${getStatusClass(order.status)}`}>
                         {getStatusIcon(order.status)}
