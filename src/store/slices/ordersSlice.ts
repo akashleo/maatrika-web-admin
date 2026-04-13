@@ -49,6 +49,7 @@ interface OrdersState {
     cancelled: number;
     revenue: number;
   };
+  userOrders: Order[];
 }
 
 const initialState: OrdersState = {
@@ -72,6 +73,7 @@ const initialState: OrdersState = {
     cancelled: 0,
     revenue: 0,
   },
+  userOrders: [],
 };
 
 export const fetchOrders = createAsyncThunk(
@@ -91,6 +93,18 @@ export const updateOrderStatus = createAsyncThunk(
   async ({ id, status }: { id: string; status: Order['status'] }, { rejectWithValue }) => {
     try {
       const response = await api.put(`/api/orders/${id}/status`, { status });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+export const fetchOrdersByUserId = createAsyncThunk(
+  'orders/fetchOrdersByUserId',
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/api/orders/user/${userId}`);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -146,6 +160,18 @@ const ordersSlice = createSlice({
         if (state.selectedOrder?.id === action.payload.id) {
           state.selectedOrder = action.payload;
         }
+      })
+      .addCase(fetchOrdersByUserId.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchOrdersByUserId.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userOrders = action.payload.orders;
+      })
+      .addCase(fetchOrdersByUserId.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       })
       .addCase(fetchOrderStats.fulfilled, (state, action) => {
         state.stats = action.payload;
